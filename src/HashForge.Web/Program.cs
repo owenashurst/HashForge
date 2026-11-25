@@ -27,6 +27,7 @@ app.UseForwardedHeaders();
 app.UseExceptionHandler("/Error", createScopeForErrors: true);
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseMiddleware<AdminAccessMiddleware>();
+app.UseMiddleware<AdminPasswordMiddleware>();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

@@ -208,10 +208,15 @@ start or stop pools without restarting. It is visible and reachable only from th
 `ADMIN_NETWORK_1..3`, which default to `192.168.0.0/24`, `192.168.1.0/24` and the machine itself.
 Everyone else gets "not found".
 
+**A password as well.** Set `ADMIN_PASSWORD` and the browser asks for it before the admin page opens; any
+user name is accepted. It is checked after the network list, not instead of it. Set one wherever the
+network list cannot tell visitors apart, such as Docker Desktop or a shared network. The browser sends
+the password with each request, so put HTTPS in front of the pool if it crosses a network you do not trust.
+
 > **Docker Desktop (Windows and macOS):** connections are forwarded through Docker's own gateway, so the pool
 > sees every visitor as coming from one internal address (usually inside `172.16.0.0/12`), not their real IP.
 > The IP allow-list cannot tell visitors apart there. To open the admin page on such a machine you must allow
-> that range, which allows anyone who can reach the web port. On Linux hosts the real client address is
+> that range, which allows anyone who can reach the web port, so set `ADMIN_PASSWORD` too. On Linux hosts the real client address is
 > preserved and the allow-list works as intended.
 
 Stopping a pool that is defined in `.env` lasts until the next restart; to remove it for good, set its
@@ -331,7 +336,7 @@ Environment variables use `__` between levels, for example `Stratum__InitialDiff
 | `Notifications` | `DiscordWebhookUrl`, `NotifyBlockFound`, `NotifyBestShare`, `BestShareCooldownSeconds` |
 | `Web` | `RefreshSeconds`, `StratumHost`, `RecentBlockCount`, `ChartHours`, `TrustedProxies`, `PathBaseHeader` |
 | `Branding` | `Name`, `Tagline`, `AccentColor`, `LogoUrl` |
-| `Admin` | `AllowedNetworks` (CIDR ranges) |
+| `Admin` | `AllowedNetworks` (CIDR ranges), `Password` |
 
 Invalid configuration stops the pool at startup with a message naming the setting. The one exception is a
 pool whose fee address the node rejects (for example an address for the wrong network): that pool is refused
