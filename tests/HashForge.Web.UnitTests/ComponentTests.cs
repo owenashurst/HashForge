@@ -403,7 +403,7 @@ public sealed class ComponentTests : WebTestContext
 
         Assert.Equal("HashForge", layout.Find(".brand-name").TextContent);
         Assert.NotEmpty(layout.FindAll(".header-status .pill"));
-        Assert.Equal("H", layout.Find("span.brand-mark").TextContent);
+        Assert.Equal(HashForge.Web.Branding.BrandingOptions.BuiltInLogo, layout.Find("img.brand-mark").GetAttribute("src"));
         Assert.Contains("Open-source Bitcoin mining pool", layout.Find("footer").TextContent);
         Assert.Contains("page body", layout.Find("main").TextContent);
         Assert.NotEmpty(layout.FindAll("nav a"));

@@ -150,4 +150,56 @@ public sealed class BrandingTests : WebTestContext
         Assert.Equal("https://cdn.example/logo.svg", layout.Find("img.brand-mark").GetAttribute("src"));
         Assert.Empty(layout.FindAll("span.brand-mark"));
     }
+
+    [Fact]
+    public void GIVEN_MainLayout_WHEN_PoolHasItsOwnNameAndNoLogo_THEN_ShowsTheInitialNotHashForgesLogo()
+    {
+        Branding.Name = "Cornish Miners";
+
+        var layout = Render<MainLayout>();
+
+        Assert.Equal("C", layout.Find("span.brand-mark").TextContent);
+        Assert.Empty(layout.FindAll("img.brand-mark"));
+    }
+
+    [Theory]
+    [InlineData("HashForge", "", BrandingOptions.BuiltInLogo)]
+    [InlineData("HashForge", "/img/mine.png", "/img/mine.png")]
+    [InlineData("Cornish Miners", "https://cdn.example/logo.svg", "https://cdn.example/logo.svg")]
+    [InlineData("Cornish Miners", "", "")]
+    [InlineData("Cornish Miners", "  ", "")]
+    public void GIVEN_EffectiveLogoUrl_WHEN_NameAndLogoVary_THEN_OwnLogoWinsAndBuiltInOneNeedsTheDefaultName(
+        string name, string logoUrl, string expected)
+    {
+        var options = new BrandingOptions { Name = name, LogoUrl = logoUrl };
+
+        Assert.Equal(expected, options.EffectiveLogoUrl);
+    }
+
+    [Fact]
+    public void GIVEN_Favicon_WHEN_PoolUsesTheDefaultName_THEN_TabIconIsHashForgesLogo()
+    {
+        var icon = Render<Favicon>().Find("link[rel=icon]");
+
+        Assert.Equal(BrandingOptions.BuiltInLogo, icon.GetAttribute("href"));
+    }
+
+    [Fact]
+    public void GIVEN_Favicon_WHEN_PoolHasItsOwnLogo_THEN_TabIconIsThatLogo()
+    {
+        Branding.Name = "Cornish Miners";
+        Branding.LogoUrl = "https://cdn.example/logo.svg";
+
+        var icon = Render<Favicon>().Find("link[rel=icon]");
+
+        Assert.Equal("https://cdn.example/logo.svg", icon.GetAttribute("href"));
+    }
+
+    [Fact]
+    public void GIVEN_Favicon_WHEN_PoolHasItsOwnNameAndNoLogo_THEN_NoTabIconIsDeclared()
+    {
+        Branding.Name = "Cornish Miners";
+
+        Assert.Empty(Render<Favicon>().FindAll("link[rel=icon]"));
+    }
 }

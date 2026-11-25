@@ -4,13 +4,13 @@
 <header class="site-header">
     <div class="header-inner">
         <a class="brand" href="">
-            @if (string.IsNullOrWhiteSpace(Branding.Value.LogoUrl))
+            @if (Branding.Value.EffectiveLogoUrl.Length == 0)
             {
                 <span class="brand-mark" aria-hidden="true">@Branding.Value.Initial</span>
             }
             else
             {
-                <img class="brand-mark" src="@Branding.Value.LogoUrl" alt="" />
+                <img class="brand-mark" src="@Branding.Value.EffectiveLogoUrl" alt="" />
             }
             <span class="brand-name">@Branding.Value.Name</span>
         </a>

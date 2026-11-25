@@ -243,7 +243,7 @@ A community can run the pool under its own identity. Set these in `.env`:
 | `BRAND_NAME` | The name in the header, browser tab, footer and Discord messages |
 | `BRAND_TAGLINE` | The short line in the footer |
 | `BRAND_ACCENT_COLOR` | The highlight colour as `"#RRGGBB"` (keep the quotes), used for the logo, active tab and buttons. Readable text colour on top of it is chosen automatically. |
-| `BRAND_LOGO_URL` | An `https://` image to use as the logo. Leave empty to show the name's initial. |
+| `BRAND_LOGO_URL` | An `https://` image to use as the logo and browser tab icon. Leave empty for HashForge's logo, or the name's initial once you have set a name of your own. |
 
 With a custom name the footer adds a "Powered by HashForge" link back to this repository.
 
@@ -268,7 +268,8 @@ Then apply it with `docker compose up -d`. The result:
 - Discord messages are sent as "Cornish Miners".
 - `COINBASE_TAG` is separate from branding: it is the text written into every block the pool finds.
 
-Without `BRAND_LOGO_URL` the logo is the first letter of the name on an accent-coloured square.
+Without `BRAND_LOGO_URL`, a pool with its own name shows the first letter of that name on an
+accent-coloured square; HashForge's own logo is only shown while the name is still HashForge.
 
 The same settings without Docker, in `appsettings.json`:
 

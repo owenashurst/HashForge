@@ -1,0 +1,8 @@
+@* The browser tab shows the same logo as the header. A pool with a name of its own and no logo
+   image has only its initial, which the header draws in text, so it gets no tab icon. *@
+@inject IOptions<BrandingOptions> Branding
+
+@if (Branding.Value.EffectiveLogoUrl.Length > 0)
+{
+    <link rel="icon" href="@Branding.Value.EffectiveLogoUrl" />
+}
