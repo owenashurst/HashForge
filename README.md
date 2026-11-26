@@ -9,7 +9,7 @@ Core node, Redis, PostgreSQL and the pool itself.
 
 ![The HashForge home page showing three pools, their hashrate, miners, effort and best shares](docs/screenshot-home.png)
 
-*The home page, shown with sample data.*
+*The home page of a pool mining on testnet4 with four miners.*
 
 **Proven on a public network:** a HashForge pool mined
 [testnet4 block 163,288](https://mempool.space/testnet4/block/00000000000000010560378a7aa2148e0d95599f93b587a752c9ada82627b2c8) at the network's full difficulty. The block is on the main chain and its
