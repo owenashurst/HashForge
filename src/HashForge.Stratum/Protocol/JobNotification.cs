@@ -19,6 +19,13 @@ public static class JobNotification
     public static string Notify(MiningJob job, bool cleanJobs)
     {
         ArgumentNullException.ThrowIfNull(job);
+        return Notify(job, cleanJobs, job.Template.CurrentTime);
+    }
+
+    /// <summary>The notification with a block time other than the template's, for a job being sent again.</summary>
+    public static string Notify(MiningJob job, bool cleanJobs, uint time)
+    {
+        ArgumentNullException.ThrowIfNull(job);
         return StratumMessages.Notification(
             NotifyMethod,
             job.Id,
@@ -28,7 +35,7 @@ public static class JobNotification
             job.MerkleBranch.Select(Convert.ToHexStringLower).ToArray(),
             job.Template.Version.ToString(UInt32HexFormat, CultureInfo.InvariantCulture),
             job.Template.Bits,
-            job.Template.CurrentTime.ToString(UInt32HexFormat, CultureInfo.InvariantCulture),
+            time.ToString(UInt32HexFormat, CultureInfo.InvariantCulture),
             cleanJobs);
     }
 
@@ -41,6 +48,13 @@ public static class JobNotification
         ArgumentNullException.ThrowIfNull(job);
         return Encoded.GetValue(job, static j => new EncodedNotification(j)).Line(cleanJobs);
     }
+
+    /// <summary>
+    /// A line for one miner only, carrying its own block time. It is not kept: a job is sent again to a
+    /// miner only when that miner's difficulty changes, which is rare next to ordinary job sends.
+    /// </summary>
+    public static ReadOnlyMemory<byte> NotifyLine(MiningJob job, bool cleanJobs, uint time) =>
+        EncodedNotification.Encode(Notify(job, cleanJobs, time));
 
     public static string SetDifficulty(double difficulty) => StratumMessages.Notification(SetDifficultyMethod, difficulty);
 }

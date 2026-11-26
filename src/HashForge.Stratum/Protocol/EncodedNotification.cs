@@ -18,6 +18,8 @@ public sealed class EncodedNotification(MiningJob job)
     /// <summary>The whole line including its line ending. The two forms differ only in the clean-jobs flag.</summary>
     public ReadOnlyMemory<byte> Line(bool cleanJobs) => (cleanJobs ? _clean : _continuing).Value;
 
-    private static byte[] Encode(MiningJob job, bool cleanJobs) =>
-        Encoding.UTF8.GetBytes(JobNotification.Notify(job, cleanJobs) + LineEnd);
+    /// <summary>Puts a notification on one line, as it goes on the wire.</summary>
+    public static byte[] Encode(string notification) => Encoding.UTF8.GetBytes(notification + LineEnd);
+
+    private static byte[] Encode(MiningJob job, bool cleanJobs) => Encode(JobNotification.Notify(job, cleanJobs));
 }

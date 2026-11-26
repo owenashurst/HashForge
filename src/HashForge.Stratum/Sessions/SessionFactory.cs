@@ -17,6 +17,6 @@ public sealed class SessionFactory(IOptions<StratumOptions> options, TimeProvide
         BinaryPrimitives.WriteUInt32BigEndian(extranonce1, Interlocked.Increment(ref _lastExtranonce));
         var now = timeProvider.GetUtcNow();
         var channel = new MinerChannel(connection, TimeSpan.FromSeconds(options.Value.SendTimeoutSeconds));
-        return new StratumSession(pool, channel, extranonce1, new VarDiffController(options.Value, now), now);
+        return new StratumSession(pool, channel, extranonce1, new VarDiffController(options.Value, now), now, timeProvider);
     }
 }

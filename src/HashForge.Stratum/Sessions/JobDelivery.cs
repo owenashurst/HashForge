@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using HashForge.Mining.Jobs;
+using HashForge.Mining.Shares;
 using HashForge.Stratum.Protocol;
 
 namespace HashForge.Stratum.Sessions;
@@ -9,11 +10,12 @@ namespace HashForge.Stratum.Sessions;
 /// a difficulty change), so the decision to send is made while holding the wire: a job built from an older
 /// template than the last one sent is dropped, and the miner can never be moved backwards.
 /// </summary>
-public sealed class JobDelivery(MinerChannel channel)
+public sealed class JobDelivery(MinerChannel channel, TimeProvider timeProvider)
 {
     private readonly ConcurrentDictionary<string, bool> _sentJobIds = new(StringComparer.OrdinalIgnoreCase);
     private long _lastSequence = -1;
     private string? _lastPreviousBlockHash;
+    private uint _lastBlockTime;
 
     /// <summary>
     /// Whether this job was sent on this connection and is still on the chain tip the miner was last given.
@@ -42,9 +44,28 @@ public sealed class JobDelivery(MinerChannel channel)
             _sentJobIds.Clear();
         }
 
-        _sentJobIds[job.Id] = true;
+        var isRepeat = !_sentJobIds.TryAdd(job.Id, true);
         _lastSequence = job.TemplateSequence;
         _lastPreviousBlockHash = job.Template.PreviousBlockHash;
-        return JobNotification.NotifyLine(job, cleanJobs);
+        if (!isRepeat)
+        {
+            _lastBlockTime = job.Template.CurrentTime;
+            return JobNotification.NotifyLine(job, cleanJobs);
+        }
+
+        // The same job goes out again when this miner's difficulty changes between templates. A miner starts
+        // a job it is handed from the beginning, so an identical copy would have it find, and hand in, the
+        // shares it has already been paid for. A later block time makes the copy different work, while it
+        // stays the same job here, so nothing can be credited twice.
+        _lastBlockTime = LaterBlockTime(job);
+        return JobNotification.NotifyLine(job, cleanJobs, _lastBlockTime);
+    }
+
+    /// <summary>The time now, but always after the one this miner was last given and never past what a share may carry.</summary>
+    private uint LaterBlockTime(MiningJob job)
+    {
+        var now = (uint)Math.Clamp(timeProvider.GetUtcNow().ToUnixTimeSeconds(), 0, uint.MaxValue);
+        var later = Math.Max(now, _lastBlockTime + 1);
+        return Math.Min(later, job.Template.CurrentTime + ShareTimeLimits.MaxFutureSeconds);
     }
 }

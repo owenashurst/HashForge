@@ -11,9 +11,6 @@ public sealed class ShareValidator : IShareValidator
 {
     private const int UInt32HexLength = 8;
 
-    /// <summary>How far into the future a block timestamp may be, per Bitcoin's consensus rules.</summary>
-    private const uint MaxFutureSeconds = 7200;
-
     public ShareValidation Validate(ShareSubmission submission, MiningJob job)
     {
         ArgumentNullException.ThrowIfNull(submission);
@@ -84,7 +81,7 @@ public sealed class ShareValidator : IShareValidator
             return false;
         }
 
-        if (time < job.Template.MinimumTime || time > job.Template.CurrentTime + MaxFutureSeconds)
+        if (time < job.Template.MinimumTime || time > job.Template.CurrentTime + ShareTimeLimits.MaxFutureSeconds)
         {
             return false;
         }

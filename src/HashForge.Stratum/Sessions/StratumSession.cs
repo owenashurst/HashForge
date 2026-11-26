@@ -11,7 +11,8 @@ public sealed class StratumSession : IAsyncDisposable
         MinerChannel channel,
         byte[] extranonce1,
         VarDiffController varDiff,
-        DateTimeOffset connectedAt)
+        DateTimeOffset connectedAt,
+        TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(extranonce1);
         Pool = pool;
@@ -20,7 +21,7 @@ public sealed class StratumSession : IAsyncDisposable
         VarDiff = varDiff;
         ConnectedAt = connectedAt;
         Id = Convert.ToHexStringLower(extranonce1);
-        Jobs = new JobDelivery(channel);
+        Jobs = new JobDelivery(channel, timeProvider);
     }
 
     public string Id { get; }

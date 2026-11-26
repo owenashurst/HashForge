@@ -83,7 +83,8 @@ internal static class StratumTestKit
             new MinerChannel(connection ?? new FakeConnection(), TimeSpan.FromSeconds(30)),
             extranonce1 ?? Extranonce1,
             new VarDiffController(Options().Value, Now),
-            Now);
+            Now,
+            TimeProvider.System);
 
     /// <summary>A session that has subscribed and authorised "bc1qmineraddress000.rig1".</summary>
     public static StratumSession AuthorizedSession(FakeConnection? connection = null, PoolDefinition? pool = null)

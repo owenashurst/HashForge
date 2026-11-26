@@ -47,7 +47,7 @@ public sealed class OverviewTests
         var connection = Substitute.For<IStratumConnection>();
         connection.RemoteAddress.Returns(IPAddress.Parse(ip));
         return new StratumSession(
-            Pool(poolName, 1), new MinerChannel(connection, TimeSpan.FromSeconds(30)), [0, 0, 0, id], new VarDiffController(new StratumOptions(), Now), connectedAt);
+            Pool(poolName, 1), new MinerChannel(connection, TimeSpan.FromSeconds(30)), [0, 0, 0, id], new VarDiffController(new StratumOptions(), Now), connectedAt, TimeProvider.System);
     }
 
     [Fact]
