@@ -3,7 +3,7 @@
     <StatTile Icon="IconKind.Hashrate" Label="Hashrate" Value="@Display.Hashrate(Stats.Hashrate)" />
     <StatTile Icon="IconKind.Effort" Label="Effort" Value="@Display.Percent(Stats.EffortPercent)" Hint="of the work a block needs on average" />
     <StatTile Icon="IconKind.Accepted" Label="Accepted shares" Value="@Display.Count(Stats.Accepted)" />
-    <StatTile Icon="IconKind.Rejected" Label="Rejected shares" Value="@Display.Count(Stats.Rejected)" />
+    <StatTile Icon="IconKind.Rejected" Label="Reject rate" Value="@Display.RejectRate(Stats.Accepted, Stats.Rejected)" Hint="@StatsText.RejectedCount(Stats.Rejected)" />
     <StatTile Icon="IconKind.Best" Label="Best share" Value="@StatsText.BestDifficulty(Stats.BestShare)" Hint="@(Stats.BestShare is null ? null : Display.Shorten(Stats.BestShare.Worker))" />
     <StatTile Icon="IconKind.Clock" Label="Last share" Value="@Display.Age(Stats.LastShareAt, Now)" />
     @ChildContent

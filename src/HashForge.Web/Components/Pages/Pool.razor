@@ -73,7 +73,7 @@ else
                                 <td class="num">@miner.Workers.Count</td>
                                 <td class="num">@Display.Hashrate(miner.Stats.Hashrate)</td>
                                 <td class="num">@Display.Count(miner.Stats.Accepted)</td>
-                                <td class="num">@Display.Count(miner.Stats.Rejected)</td>
+                                <td class="num" title="@StatsText.RejectedCount(miner.Stats.Rejected)">@Display.RejectRate(miner.Stats.Accepted, miner.Stats.Rejected)</td>
                                 <td class="num"><EffortMeter Percent="miner.Stats.EffortPercent" /></td>
                                 <td class="num">@StatsText.BestDifficulty(miner.Stats.BestShare)</td>
                             </tr>

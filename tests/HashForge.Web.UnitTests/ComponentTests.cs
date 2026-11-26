@@ -70,6 +70,34 @@ public sealed class ComponentTests : WebTestContext
     }
 
     [Fact]
+    public void GIVEN_StatsTiles_WHEN_SharesWereRejected_THEN_ShowsTheRateWithTheCountBesideIt()
+    {
+        var tiles = Render<StatsTiles>(p => p.Add(t => t.Stats, Stats(accepted: 5000, rejected: 25)).Add(t => t.Now, Now));
+
+        var tile = tiles.FindAll(".tile").Single(t => t.QuerySelector(".tile-label")!.TextContent == "Reject rate");
+        Assert.Equal("0.5%", tile.QuerySelector(".tile-value")!.TextContent);
+        Assert.Equal("25 rejected", tile.QuerySelector(".tile-hint")!.TextContent);
+    }
+
+    [Fact]
+    public void GIVEN_StatsTiles_WHEN_NoSharesYet_THEN_RejectRateIsADashNotAPerfectScore()
+    {
+        var tiles = Render<StatsTiles>(p => p.Add(t => t.Stats, Stats(accepted: 0, rejected: 0)).Add(t => t.Now, Now));
+
+        var tile = tiles.FindAll(".tile").Single(t => t.QuerySelector(".tile-label")!.TextContent == "Reject rate");
+        Assert.Equal(Display.None, tile.QuerySelector(".tile-value")!.TextContent);
+    }
+
+    [Theory]
+    [InlineData(0, 0, "0")]
+    [InlineData(5000, 25, "25 (0.5%)")]
+    [InlineData(0, 2, "2 (100%)")]
+    public void GIVEN_RejectedWithRate_WHEN_SharesVary_THEN_CountComesFirstAndRateOnlyOnceThereAreShares(long accepted, long rejected, string expected)
+    {
+        Assert.Equal(expected, StatsText.RejectedWithRate(accepted, rejected));
+    }
+
+    [Fact]
     public void GIVEN_BlockTable_WHEN_NoBlocks_THEN_ShowsEmptyMessage()
     {
         var table = Render<BlockTable>(p => p.Add(t => t.Blocks, []).Add(t => t.Now, Now));
@@ -129,6 +157,8 @@ public sealed class ComponentTests : WebTestContext
         Assert.Equal(2, home.FindAll("table")[0].QuerySelectorAll("tbody tr").Length);
         Assert.Contains("SOLO", home.Markup);
         Assert.Contains("5,000", home.Markup);
+        Assert.Contains("0.5%", home.Markup);
+        Assert.Contains("25 rejected, all pools", home.Markup);
         Assert.Contains("7.7 T", home.Markup);
         Assert.Contains("bc1qbob.s21", home.Markup);
         Assert.Contains("850,000", home.Markup);
@@ -197,6 +227,8 @@ public sealed class ComponentTests : WebTestContext
         Assert.Contains("9 workers", pool.Markup);
         Assert.Single(pool.FindAll("svg[role=img]"));
         Assert.Contains("bc1qalicea…ealice", pool.Markup, StringComparison.Ordinal);
+        var rejected = pool.Find("td[title='3 rejected']");
+        Assert.Equal("2.44%", rejected.TextContent);
     }
 
     [Fact]
@@ -244,6 +276,7 @@ public sealed class ComponentTests : WebTestContext
         Assert.Equal(2, rows.Count);
         Assert.Contains("garage", rows[0].TextContent);
         Assert.Contains("77", rows[0].TextContent);
+        Assert.Equal("3.75%", rows[0].QuerySelector("td[title='3 rejected']")!.TextContent);
         Assert.Equal("bc1qalicealicealice", miner.Find("h1").TextContent);
     }
 

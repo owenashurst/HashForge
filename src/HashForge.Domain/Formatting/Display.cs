@@ -12,6 +12,10 @@ public static class Display
     private const int ShortPrefixLength = 10;
     private const int ShortSuffixLength = 6;
 
+    // Below this a rate would be rounded to "0%", which would hide rejections that did happen.
+    private const double SmallestShownPercent = 0.005;
+    private const string BelowSmallestPercent = "<0.01%";
+
     private static readonly string[] HashrateUnits = ["H/s", "kH/s", "MH/s", "GH/s", "TH/s", "PH/s", "EH/s", "ZH/s"];
     private static readonly string[] DifficultyUnits = ["", "K", "M", "G", "T", "P", "E", "Z"];
     private static readonly string[] ByteUnits = ["B", "kB", "MB", "GB", "TB"];
@@ -25,6 +29,15 @@ public static class Display
     public static string Percent(double percent) => percent.ToString("0.##", CultureInfo.InvariantCulture) + "%";
 
     public static string Count(long value) => value.ToString("N0", CultureInfo.InvariantCulture);
+
+    /// <summary>The share of handed-in work that was rejected, e.g. "0.12%"; a dash before the first share.</summary>
+    public static string RejectRate(long accepted, long rejected) =>
+        Domain.RejectRate.Percent(accepted, rejected) switch
+        {
+            null => None,
+            > 0 and < SmallestShownPercent => BelowSmallestPercent,
+            { } percent => Percent(percent),
+        };
 
     public static string Bitcoin(long satoshis) =>
         ((decimal)satoshis / SatoshisPerBitcoin).ToString("0.00000000", CultureInfo.InvariantCulture) + " BTC";

@@ -53,7 +53,7 @@ else
                             <td>@worker.Name</td>
                             <td class="num">@Display.Hashrate(worker.Stats.Hashrate)</td>
                             <td class="num">@Display.Count(worker.Stats.Accepted)</td>
-                            <td class="num">@Display.Count(worker.Stats.Rejected)</td>
+                            <td class="num" title="@StatsText.RejectedCount(worker.Stats.Rejected)">@Display.RejectRate(worker.Stats.Accepted, worker.Stats.Rejected)</td>
                             <td class="num"><EffortMeter Percent="worker.Stats.EffortPercent" /></td>
                             <td class="num">@StatsText.BestDifficulty(worker.Stats.BestShare)</td>
                             <td>@Display.Age(worker.Stats.LastShareAt, Now)</td>

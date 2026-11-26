@@ -53,7 +53,7 @@ coinbase pays the miner and the pool fee directly, exactly as the pool calculate
 
 **Statistics**
 
-- **Live figures for every pool, miner and worker:** hashrate, accepted and rejected shares, last share.
+- **Live figures for every pool, miner and worker:** hashrate, accepted shares, reject rate, last share.
   Miner and worker counts are those seen within the hashrate window (10 minutes by default).
 - **Effort:** work submitted so far as a percentage of the work a block needs on average, measured against the
   difficulty of the block actually being mined.

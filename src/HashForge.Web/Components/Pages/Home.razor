@@ -23,7 +23,7 @@
     <StatTile Icon="IconKind.Hashrate" Label="Total hashrate" Value="@Display.Hashrate(_pools.Sum(p => p.Stats.Hashrate))" Hint="all pools" />
     <StatTile Icon="IconKind.Miners" Label="Miners" Value="@Display.Count(_pools.Sum(p => p.MinerCount))" Hint="@($"{Display.Count(_pools.Sum(p => p.WorkerCount))} workers")" />
     <StatTile Icon="IconKind.Accepted" Label="Accepted shares" Value="@Display.Count(_totals.Accepted)" Hint="all pools" />
-    <StatTile Icon="IconKind.Rejected" Label="Rejected shares" Value="@Display.Count(_totals.Rejected)" Hint="all pools" />
+    <StatTile Icon="IconKind.Rejected" Label="Reject rate" Value="@Display.RejectRate(_totals.Accepted, _totals.Rejected)" Hint="@($"{StatsText.RejectedCount(_totals.Rejected)}, all pools")" />
     <StatTile Icon="IconKind.Best" Label="Best share overall" Value="@StatsText.BestDifficulty(_bestShare)" Hint="@(_bestShare is null ? null : Display.Shorten(_bestShare.Worker))" />
 </section>
 

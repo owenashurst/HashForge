@@ -31,7 +31,7 @@
 
 <section class="tiles">
     <StatTile Icon="IconKind.Accepted" Label="Accepted shares" Value="@Display.Count(_totals.Accepted)" Hint="all pools" />
-    <StatTile Icon="IconKind.Rejected" Label="Rejected shares" Value="@Display.Count(_totals.Rejected)" Hint="all pools" />
+    <StatTile Icon="IconKind.Rejected" Label="Reject rate" Value="@Display.RejectRate(_totals.Accepted, _totals.Rejected)" Hint="@($"{StatsText.RejectedCount(_totals.Rejected)}, all pools")" />
     <StatTile Icon="IconKind.Connections" Label="Connections" Value="@Display.Count(_sessions.Count)" Hint="@($"{_addresses.Count} IP addresses")" />
 </section>
 
@@ -56,7 +56,7 @@
                             <td class="num">@pool.Port</td>
                             <td class="num">@pool.MinerCount</td>
                             <td class="num">@Display.Count(pool.Stats.Accepted)</td>
-                            <td class="num">@Display.Count(pool.Stats.Rejected)</td>
+                            <td class="num">@StatsText.RejectedWithRate(pool.Stats.Accepted, pool.Stats.Rejected)</td>
                             <td class="num"><button type="button" class="danger" @onclick="() => RemoveAsync(pool.Name)">Stop</button></td>
                         </tr>
                     }
@@ -119,7 +119,7 @@
                             <td>@string.Join(", ", session.Workers)</td>
                             <td class="num">@Display.Difficulty(session.Difficulty)</td>
                             <td class="num">@Display.Count(session.Accepted)</td>
-                            <td class="num">@Display.Count(session.Rejected)</td>
+                            <td class="num">@StatsText.RejectedWithRate(session.Accepted, session.Rejected)</td>
                             <td>@Display.Age(session.ConnectedAt, Now)</td>
                         </tr>
                     }

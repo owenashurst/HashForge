@@ -43,6 +43,18 @@ public sealed class DisplayTests
     }
 
     [Theory]
+    [InlineData(0, 0, "–")]
+    [InlineData(500, 0, "0%")]
+    [InlineData(5000, 25, "0.5%")]
+    [InlineData(108_852, 37, "0.03%")]
+    [InlineData(40_000_000, 1, "<0.01%")]
+    [InlineData(0, 4, "100%")]
+    public void GIVEN_RejectRate_WHEN_SharesVary_THEN_ShowsARateThatNeverHidesARejection(long accepted, long rejected, string expected)
+    {
+        Assert.Equal(expected, Display.RejectRate(accepted, rejected));
+    }
+
+    [Theory]
     [InlineData(0, "0s ago")]
     [InlineData(59, "59s ago")]
     [InlineData(60, "1m ago")]
