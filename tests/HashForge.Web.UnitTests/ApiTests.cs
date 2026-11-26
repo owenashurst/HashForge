@@ -40,6 +40,7 @@ public sealed class ApiTests : IAsyncLifetime
             .AddHashForgeApi();
         _app = builder.Build();
         _app.UseExceptionHandler("/Error");
+        _app.UseCors();
         _app.MapHashForgeApi();
         await _app.StartAsync();
         _client = _app.GetTestClient();

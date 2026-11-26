@@ -28,6 +28,7 @@ app.UseExceptionHandler("/Error", createScopeForErrors: true);
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseMiddleware<AdminAccessMiddleware>();
 app.UseMiddleware<AdminPasswordMiddleware>();
+app.UseCors();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

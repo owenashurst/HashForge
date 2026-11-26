@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Options;
 using HashForge.Web.Api.Handlers;
 
 namespace HashForge.Web.Api;
@@ -15,6 +17,8 @@ public static class ApiEndpoints
         services.AddSingleton<IApiEndpoint, GetBlocksEndpoint>();
         services.AddSingleton<IApiEndpoint, GetNetworkEndpoint>();
         services.AddExceptionHandler<ApiExceptionHandler>();
+        services.AddCors();
+        services.AddSingleton<IConfigureOptions<CorsOptions>, ApiCorsSetup>();
         services.ConfigureHttpJsonOptions(json => json.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         return services;
     }
@@ -24,7 +28,8 @@ public static class ApiEndpoints
     {
         ArgumentNullException.ThrowIfNull(routes);
 
-        var api = routes.MapGroup(BasePath);
+        // Only the API is opened to other websites; the pages and the admin area never are.
+        var api = routes.MapGroup(BasePath).RequireCors(ApiCorsSetup.PolicyName);
         foreach (var endpoint in routes.ServiceProvider.GetServices<IApiEndpoint>())
         {
             endpoint.Map(api);

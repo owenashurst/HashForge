@@ -140,6 +140,8 @@ services:
       # Set when a reverse proxy serves the web UI under a sub-path and names that path in a request header.
       Web__PathBaseHeader: ${PATH_BASE_HEADER:-}
       Web__StratumHost: ${STRATUM_HOST:-your-pool-host}
+      # Websites whose pages may read the JSON API from a browser, for a front end of your own.
+      Web__ApiAllowedOrigins__0: ${API_ALLOWED_ORIGINS:-}
       Admin__AllowedNetworks__0: ${ADMIN_NETWORK_1:-192.168.0.0/24}
       Admin__AllowedNetworks__1: ${ADMIN_NETWORK_2:-192.168.1.0/24}
       Admin__AllowedNetworks__2: ${ADMIN_NETWORK_3:-127.0.0.0/8}

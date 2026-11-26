@@ -9,6 +9,8 @@ public sealed class WebOptions
     /// <summary>The first port Docker publishes for pools started from the admin page.</summary>
     public const int FirstSparePoolPort = 3337;
 
+    private const char OriginSeparator = ',';
+
     /// <summary>How often live pages re-read the statistics.</summary>
     [Range(1, 3600)]
     public double RefreshSeconds { get; set; } = 5;
@@ -35,6 +37,18 @@ public sealed class WebOptions
     /// </summary>
     public string PathBaseHeader { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Websites whose pages may read the JSON API from a browser, each written as an origin such as
+    /// <c>https://stats.example.com</c>, or <c>*</c> for any website. An entry may hold several, separated
+    /// by commas, so one environment variable can carry the whole list. Leave empty to allow none.
+    /// </summary>
+    public IList<string> ApiAllowedOrigins { get; init; } = [];
+
     /// <summary>The proxies actually configured; blank entries (an unset environment variable) are ignored.</summary>
     public IEnumerable<string> ConfiguredProxies => TrustedProxies.Where(proxy => !string.IsNullOrWhiteSpace(proxy));
+
+    /// <summary>The origins actually configured, one per item; blank entries are ignored.</summary>
+    public IEnumerable<string> ConfiguredApiOrigins => ApiAllowedOrigins
+        .Where(entry => entry is not null)
+        .SelectMany(entry => entry.Split(OriginSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
 }

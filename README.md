@@ -323,6 +323,18 @@ The full address is only ever shown to someone who typed it in.
 
 Error codes: `not_found`, `invalid_request`, `node_unavailable`, `internal_error`.
 
+**Calling the API from your own website.** A browser will not let a page on one site read answers from
+another unless that site allows it (CORS), so a front end of your own is blocked by default. List the
+websites to allow in `API_ALLOWED_ORIGINS`, separated by commas, each as scheme, host and port with no path:
+
+```
+API_ALLOWED_ORIGINS=https://stats.example.com,http://localhost:5173
+```
+
+`*` allows every website. The API is read-only and shows nothing the pool's own pages do not, but with `*`
+any site a visitor has open can read the statistics of a pool that visitor's browser can reach. Only
+`/api` is affected; the pages and the admin area are never opened to other sites.
+
 ## Configuration reference
 
 All settings can be supplied as environment variables (as the Compose file does) or in `appsettings.json`.
@@ -335,7 +347,7 @@ Environment variables use `__` between levels, for example `Stratum__InitialDiff
 | `Mining` | `Pools` (name, scheme `Solo`/`Prop`/`Pplns`/`FinderBonus`, port, fee, fee address, finder bonus, limits), `CoinbaseTag`, `MaxCoinbaseOutputsCeiling`, `TemplateRefreshSeconds`, `NetworkStatsRefreshSeconds`, `StateSnapshotSeconds`, `HistorySampleMinutes`, `MinerHistoryHours` |
 | `Stratum` | `InitialDifficulty`, `MinDifficulty`, `MaxDifficulty`, `TargetSharesPerMinute`, `RetargetSeconds`, `IdleTimeoutSeconds`, `SendTimeoutSeconds`, `MaxConnections`, `MaxConnectionsPerAddress`, `VersionRollingMask` |
 | `Notifications` | `DiscordWebhookUrl`, `NotifyBlockFound`, `NotifyBestShare`, `BestShareCooldownSeconds` |
-| `Web` | `RefreshSeconds`, `StratumHost`, `RecentBlockCount`, `ChartHours`, `TrustedProxies`, `PathBaseHeader` |
+| `Web` | `RefreshSeconds`, `StratumHost`, `RecentBlockCount`, `ChartHours`, `TrustedProxies`, `PathBaseHeader`, `ApiAllowedOrigins` |
 | `Branding` | `Name`, `Tagline`, `AccentColor`, `LogoUrl` |
 | `Admin` | `AllowedNetworks` (CIDR ranges), `Password` |
 
