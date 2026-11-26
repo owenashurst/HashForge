@@ -16,6 +16,8 @@ public sealed class HashForgeDbContext(DbContextOptions<HashForgeDbContext> opti
 
     public DbSet<PoolDefinitionEntity> Pools => Set<PoolDefinitionEntity>();
 
+    public DbSet<StoppedPoolEntity> StoppedPools => Set<StoppedPoolEntity>();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         // Stored as Unix milliseconds so timestamps sort and compare identically on every database engine.
@@ -46,6 +48,11 @@ public sealed class HashForgeDbContext(DbContextOptions<HashForgeDbContext> opti
             pool.Property(p => p.Name).HasMaxLength(NameLength);
             pool.Property(p => p.FeeAddress).HasMaxLength(AddressLength);
             pool.Property(p => p.FeePercent).HasPrecision(6, 3);
+        });
+        modelBuilder.Entity<StoppedPoolEntity>(stopped =>
+        {
+            stopped.HasKey(p => p.Name);
+            stopped.Property(p => p.Name).HasMaxLength(NameLength);
         });
     }
 

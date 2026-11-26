@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IBlockRepository, EfBlockRepository>();
         services.AddSingleton<IPoolHistoryRepository, EfPoolHistoryRepository>();
         services.AddSingleton<IPoolDefinitionStore, EfPoolDefinitionStore>();
+        services.AddSingleton<IStoppedPoolStore, EfStoppedPoolStore>();
         services.AddSingleton<IDatabaseMigrator, EfDatabaseMigrator>();
         services.AddHostedService<DatabaseMigrationService>();
         return services;

@@ -219,8 +219,16 @@ the password with each request, so put HTTPS in front of the pool if it crosses 
 > that range, which allows anyone who can reach the web port, so set `ADMIN_PASSWORD` too. On Linux hosts the real client address is
 > preserved and the allow-list works as intended.
 
-Stopping a pool that is defined in `.env` lasts until the next restart; to remove it for good, set its
-`*_ENABLED` to `false`.
+**Stopping is not deleting.** A pool you stop on the admin page is kept and stays stopped, restarts and
+updates included, until you press Start. What can be removed, and where, depends on where the pool came from:
+
+- A pool set in the configuration (`SOLO_ENABLED` and the like) exists for as long as it is enabled there.
+  It can be stopped and started on the admin page, and is removed by setting its `*_ENABLED` to `false`;
+  it is then gone at the next start. Enable it again later and it comes back running.
+- A pool created on the admin page is kept in the database and can be deleted there once stopped.
+
+A stopped PROP, PPLNS or BONUS pool keeps the work its miners have handed in, so starting it again carries
+on where it left off. Deleting a pool discards that work.
 
 **Behind a reverse proxy**, every request reaches the pool from the proxy's address, so set `TRUSTED_PROXY`
 to the proxy's IP. The pool then reads the visitor's real address from the proxy's `X-Forwarded-For` header

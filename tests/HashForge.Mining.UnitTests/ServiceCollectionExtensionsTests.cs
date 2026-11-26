@@ -36,6 +36,7 @@ public sealed class ServiceCollectionExtensionsTests
             .AddSingleton(Substitute.For<IBlockRepository>())
             .AddSingleton(Substitute.For<IPoolHistoryRepository>())
             .AddSingleton(Substitute.For<IPoolDefinitionStore>())
+            .AddSingleton(Substitute.For<IStoppedPoolStore>())
             .AddHashForgeMining()
             .BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
     }

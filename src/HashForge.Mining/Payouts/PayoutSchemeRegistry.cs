@@ -68,7 +68,23 @@ public sealed class PayoutSchemeRegistry : IPayoutSchemeRegistry, IDisposable
         }
     }
 
-    private void OnPoolRemoved(object? sender, PoolChangedEventArgs args) => _schemes.TryRemove(args.Pool.Name, out _);
+    public void Forget(string poolName)
+    {
+        _schemes.TryRemove(poolName, out _);
+        _pendingHistory.TryRemove(poolName, out _);
+    }
+
+    /// <summary>
+    /// A stopped pool may be started again, so the work its miners have handed in is set aside rather than
+    /// thrown away: they are still owed their part of the next block.
+    /// </summary>
+    private void OnPoolRemoved(object? sender, PoolChangedEventArgs args)
+    {
+        if (_schemes.TryRemove(args.Pool.Name, out var scheme) && scheme.Value is IPersistentPayoutScheme persistent)
+        {
+            _pendingHistory[args.Pool.Name] = persistent.ExportState();
+        }
+    }
 
     private IPayoutScheme Create(PoolDefinition pool)
     {

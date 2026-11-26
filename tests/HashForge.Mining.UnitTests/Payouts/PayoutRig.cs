@@ -37,4 +37,6 @@ internal sealed class PayoutRig : IDisposable
     public string ExportState() => _state.ExportState();
 
     public void ImportState(string state) => _state.ImportState(state);
+
+    public void Forget(string poolName) => _schemes.Forget(poolName);
 }

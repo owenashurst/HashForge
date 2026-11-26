@@ -186,6 +186,17 @@ namespace HashForge.Persistence.Database.Migrations
                     b.ToTable("PoolHistory");
                 });
 
+            modelBuilder.Entity("HashForge.Persistence.Database.StoppedPoolEntity", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("StoppedPools");
+                });
+
             modelBuilder.Entity("HashForge.Persistence.Database.BlockPayoutEntity", b =>
                 {
                     b.HasOne("HashForge.Persistence.Database.BlockEntity", null)

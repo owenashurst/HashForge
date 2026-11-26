@@ -161,6 +161,31 @@ public sealed class DatabaseTests : IDisposable
     }
 
     [Fact]
+    public async Task GIVEN_StoppedAddAsync_WHEN_PoolsAreStopped_THEN_GetAllListsEachOnce()
+    {
+        var store = new EfStoppedPoolStore(_factory);
+
+        await store.AddAsync("solo", CancellationToken.None);
+        await store.AddAsync("bonus", CancellationToken.None);
+        await store.AddAsync("solo", CancellationToken.None);
+
+        Assert.Equal(["bonus", "solo"], await store.GetAllAsync(CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task GIVEN_StoppedRemoveAsync_WHEN_PoolIsStartedAgain_THEN_OnlyThatPoolIsForgotten()
+    {
+        var store = new EfStoppedPoolStore(_factory);
+        await store.AddAsync("solo", CancellationToken.None);
+        await store.AddAsync("bonus", CancellationToken.None);
+
+        await store.RemoveAsync("solo", CancellationToken.None);
+        await store.RemoveAsync("missing", CancellationToken.None);
+
+        Assert.Equal(["bonus"], await store.GetAllAsync(CancellationToken.None));
+    }
+
+    [Fact]
     public async Task GIVEN_MigrationServiceStartAsync_WHEN_HostStarts_THEN_DatabaseIsMigratedOnce()
     {
         var migrator = Substitute.For<IDatabaseMigrator>();
@@ -179,7 +204,7 @@ public sealed class DatabaseTests : IDisposable
 
         Assert.False(context.Database.HasPendingModelChanges());
         Assert.Contains("InitialCreate", context.Database.GetMigrations().First());
-        Assert.Equal(4, context.Database.GetMigrations().Count());
+        Assert.Equal(5, context.Database.GetMigrations().Count());
     }
 
     [Fact]

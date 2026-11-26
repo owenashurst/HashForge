@@ -191,6 +191,10 @@ button { padding: 0.5rem 1rem; border: 1px solid transparent; border-radius: var
 button:hover { filter: brightness(1.06); }
 button.danger { padding: 0.25rem 0.7rem; background: transparent; border-color: var(--border-strong); color: var(--danger); font-weight: 500; font-size: 0.85rem; }
 button.danger:hover { background: var(--danger-soft); border-color: var(--danger); filter: none; }
+button.quiet { padding: 0.25rem 0.7rem; background: transparent; border-color: var(--border-strong); color: var(--text); font-weight: 500; font-size: 0.85rem; }
+button.quiet:hover { background: var(--surface-raised); filter: none; }
+.row-actions button + button { margin-left: 0.4rem; }
+tr.stopped td { color: var(--text-secondary); }
 .inline-form { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
 .inline-form label { font-size: 0.85rem; color: var(--text-secondary); }
 .inline-form input { flex: 1 1 18rem; width: auto; }

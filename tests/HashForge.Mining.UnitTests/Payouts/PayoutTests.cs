@@ -68,11 +68,44 @@ public sealed class PayoutTests
     }
 
     [Fact]
-    public void GIVEN_PoolRemoved_WHEN_PoolIsAddedAgain_THEN_ItStartsWithEmptyHistory()
+    public void GIVEN_PoolRemoved_WHEN_PoolIsAddedAgain_THEN_MinersKeepTheWorkTheyHandedIn()
+    {
+        var tracker = Tracker();
+        tracker.OnShare(TestData.Share("prop", credited: 64));
+
+        _registry.Remove("prop");
+        _registry.TryAdd(_prop, out _);
+
+        Assert.Equal(64, tracker.GetPlan(_prop, "anyone").Weights[TestData.MinerAddress]);
+    }
+
+    [Fact]
+    public void GIVEN_PoolRemoved_WHEN_StateIsSavedWhileItIsStopped_THEN_ItsWorkIsStillInTheSnapshot()
+    {
+        var original = Tracker();
+        original.OnShare(TestData.Share("prop", credited: 64));
+        _registry.Remove("prop");
+
+        var restored = Tracker();
+        restored.ImportState(original.ExportState());
+        _registry.TryAdd(_prop, out _);
+
+        Assert.Equal(64, restored.GetPlan(_prop, "anyone").Weights[TestData.MinerAddress]);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void GIVEN_Forget_WHEN_PoolIsAddedAgain_THEN_ItStartsWithEmptyHistory(bool stoppedFirst)
     {
         var tracker = Tracker();
         tracker.OnShare(TestData.Share("prop"));
+        if (stoppedFirst)
+        {
+            _registry.Remove("prop");
+        }
 
+        tracker.Forget("prop");
         _registry.Remove("prop");
         _registry.TryAdd(_prop, out _);
 

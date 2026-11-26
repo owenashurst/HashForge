@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the mining engine. The host must also register an <see cref="IHotStateStore"/>,
-    /// <see cref="IBlockRepository"/>, <see cref="IPoolHistoryRepository"/> and <see cref="IPoolDefinitionStore"/>.
+    /// <see cref="IBlockRepository"/>, <see cref="IPoolHistoryRepository"/>, <see cref="IPoolDefinitionStore"/> and <see cref="IStoppedPoolStore"/>.
     /// </summary>
     public static IServiceCollection AddHashForgeMining(this IServiceCollection services)
     {
@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton(TimeProvider.System);
 
         services.AddSingleton<IPoolRegistry, PoolRegistry>();
+        services.AddSingleton<IPoolCatalogue, PoolCatalogue>();
         services.AddSingleton<IPoolProvisioner, PoolProvisioner>();
         services.AddSingleton<INetworkStatsStore, NetworkStatsStore>();
         services.AddSingleton<IAddressScriptResolver, AddressScriptResolver>();

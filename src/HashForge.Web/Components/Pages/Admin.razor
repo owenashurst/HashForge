@@ -35,10 +35,11 @@
     <StatTile Icon="IconKind.Connections" Label="Connections" Value="@Display.Count(_sessions.Count)" Hint="@($"{_addresses.Count} IP addresses")" />
 </section>
 
-<SectionCard Icon="IconKind.Port" Title="Pools" Aside="@($"{_pools.Count} running")" Flush="true">
-    @if (_pools.Count == 0)
+<SectionCard Icon="IconKind.Port" Title="Pools" Aside="@PoolCounts()" Flush="true"
+             Footnote="A stopped pool stays stopped, restarts included, until you start it here. Pools created on this page can be deleted once stopped; a pool set in the configuration is removed by turning it off there.">
+    @if (_pools.Count == 0 && _stopped.Count == 0)
     {
-        <p class="empty">No pools are running. Start one below.</p>
+        <p class="empty">There are no pools. Create one below.</p>
     }
     else
     {
@@ -57,7 +58,25 @@
                             <td class="num">@pool.MinerCount</td>
                             <td class="num">@Display.Count(pool.Stats.Accepted)</td>
                             <td class="num">@StatsText.RejectedWithRate(pool.Stats.Accepted, pool.Stats.Rejected)</td>
-                            <td class="num"><button type="button" class="danger" @onclick="() => RemoveAsync(pool.Name)">Stop</button></td>
+                            <td class="num"><button type="button" class="danger" @onclick="() => StopAsync(pool.Name)">Stop</button></td>
+                        </tr>
+                    }
+                    @foreach (var pool in _stopped)
+                    {
+                        <tr class="stopped">
+                            <td>@pool.Definition.Name <span class="badge">STOPPED</span></td>
+                            <td><SchemeBadge Scheme="pool.Definition.Scheme" /></td>
+                            <td class="num">@pool.Definition.Port</td>
+                            <td class="num">@Display.None</td>
+                            <td class="num">@Display.None</td>
+                            <td class="num">@Display.None</td>
+                            <td class="num row-actions">
+                                <button type="button" class="quiet" @onclick="() => StartAsync(pool.Definition.Name)">Start</button>
+                                @if (pool.CanBeDeleted)
+                                {
+                                    <button type="button" class="danger" @onclick="() => DeleteAsync(pool.Definition.Name)">Delete</button>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -66,7 +85,7 @@
     }
 </SectionCard>
 
-<SectionCard Icon="IconKind.Port" Title="Start a pool"
+<SectionCard Icon="IconKind.Port" Title="Create a pool"
              Footnote="@($"Starts immediately, with no restart. Under Docker, pick a port inside the published range (ADMIN_POOL_PORT_RANGE, from {WebOptions.FirstSparePoolPort} by default).")">
     <EditForm Model="_form" OnValidSubmit="AddAsync" FormName="add-pool" class="stack-form">
         <label>Name <InputText @bind-Value="_form.Name" placeholder="pplns-2" /></label>
@@ -86,7 +105,7 @@
             <label>Finder bonus (BTC) <InputNumber id="finder-bonus" @bind-Value="_form.FinderBonusBitcoin" step="0.01" min="0" /></label>
         }
         <label>Fee address <InputText @bind-Value="_form.FeeAddress" placeholder="@(_form.FeePercent > 0 ? "bc1q…" : "not needed at 0% fee")" /></label>
-        <button type="submit">Start pool</button>
+        <button type="submit">Create pool</button>
     </EditForm>
     @if (_message is not null)
     {
@@ -144,6 +163,7 @@
 @code {
     private readonly PoolForm _form = new() { Port = WebOptions.FirstSparePoolPort };
     private IReadOnlyList<PoolSnapshot> _pools = [];
+    private IReadOnlyList<ManagedPool> _stopped = [];
     private IReadOnlyList<SessionInfo> _sessions = [];
     private IReadOnlyList<ConnectedAddress> _addresses = [];
     private ShareTotals _totals = new(0, 0);
@@ -155,6 +175,7 @@
     {
         _network = NetworkStats.Current;
         _pools = Overview.GetPools();
+        _stopped = [.. Provisioner.GetPools().Where(pool => !pool.IsRunning)];
         _totals = Overview.GetTotals();
         _sessions = Miners.GetSessions();
         _addresses = Miners.GetAddresses();
@@ -169,10 +190,23 @@
         await LoadAsync();
     }
 
-    private async Task RemoveAsync(string name)
+    private string PoolCounts() =>
+        _stopped.Count == 0 ? $"{_pools.Count} running" : $"{_pools.Count} running, {_stopped.Count} stopped";
+
+    private Task StopAsync(string name) =>
+        ApplyAsync(Provisioner.StopAsync(name, Cancellation), $"Pool “{name}” was stopped. It stays stopped until you start it again.");
+
+    private Task StartAsync(string name) =>
+        ApplyAsync(Provisioner.StartAsync(name, Cancellation), $"Pool “{name}” is running again.");
+
+    private Task DeleteAsync(string name) =>
+        ApplyAsync(Provisioner.DeleteAsync(name, Cancellation), $"Pool “{name}” was deleted.");
+
+    private async Task ApplyAsync(Task<ProvisionResult> change, string done)
     {
-        _succeeded = await Provisioner.RemoveAsync(name, Cancellation);
-        _message = _succeeded ? $"Pool “{name}” was stopped." : $"Pool “{name}” was not running.";
+        var result = await change;
+        _succeeded = result.Succeeded;
+        _message = result.Succeeded ? done : result.Error;
         await LoadAsync();
     }
 }

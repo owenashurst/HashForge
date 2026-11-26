@@ -31,6 +31,7 @@ public abstract class WebTestContext : BunitContext
         Miners.GetSessions().Returns([]);
         Miners.GetAddresses().Returns([]);
         Registry.Pools.Returns([]);
+        Provisioner.GetPools().Returns([]);
 
         Services.AddSingleton<TimeProvider>(Time);
         Services.AddSingleton(Options.Create(WebOptions));

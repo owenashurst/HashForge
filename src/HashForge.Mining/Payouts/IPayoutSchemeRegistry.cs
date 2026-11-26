@@ -12,4 +12,7 @@ public interface IPayoutSchemeRegistry
     IReadOnlyDictionary<string, IReadOnlyList<ShareBucket>> ExportHistory();
 
     void ImportHistory(IReadOnlyDictionary<string, IReadOnlyList<ShareBucket>> history);
+
+    /// <summary>Discards a pool's share history, for a pool that has been deleted and will not return.</summary>
+    void Forget(string poolName);
 }

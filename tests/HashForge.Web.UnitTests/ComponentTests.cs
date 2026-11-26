@@ -408,18 +408,90 @@ public sealed class ComponentTests : WebTestContext
     }
 
     [Theory]
-    [InlineData(true, "was stopped")]
-    [InlineData(false, "was not running")]
-    public void GIVEN_Admin_WHEN_StopIsClicked_THEN_PoolIsRemovedAndOutcomeShown(bool removed, string expectedMessage)
+    [InlineData(true, "stays stopped until you start it again")]
+    [InlineData(false, "is not running")]
+    public void GIVEN_Admin_WHEN_StopIsClicked_THEN_PoolIsStoppedAndOutcomeShown(bool stopped, string expectedMessage)
     {
         Overview.GetPools().Returns([PoolSnapshot("solo", PayoutScheme.Solo, 3333)]);
-        Provisioner.RemoveAsync("solo", Arg.Any<CancellationToken>()).Returns(removed);
+        Provisioner.StopAsync("solo", Arg.Any<CancellationToken>())
+            .Returns(stopped ? ProvisionResult.Success : ProvisionResult.Failure("Pool 'solo' is not running."));
         var admin = Render<AdminPage>();
 
         admin.Find("button.danger").Click();
 
-        Provisioner.Received(1).RemoveAsync("solo", Arg.Any<CancellationToken>());
+        Provisioner.Received(1).StopAsync("solo", Arg.Any<CancellationToken>());
         Assert.Contains(expectedMessage, admin.Find("[role=status]").TextContent);
+    }
+
+    private static ManagedPool Stopped(string name, PoolOrigin origin, int port = 3333) =>
+        new(new PoolDefinition { Name = name, Scheme = PayoutScheme.Solo, Port = port }, origin, IsRunning: false);
+
+    [Fact]
+    public void GIVEN_Admin_WHEN_APoolIsStopped_THEN_ItIsStillListedAndCounted()
+    {
+        Overview.GetPools().Returns([PoolSnapshot("pplns", PayoutScheme.Pplns, 3334)]);
+        Provisioner.GetPools().Returns(
+        [
+            Stopped("solo", PoolOrigin.Configuration),
+            new ManagedPool(new PoolDefinition { Name = "pplns", Scheme = PayoutScheme.Pplns, Port = 3334 }, PoolOrigin.Configuration, IsRunning: true),
+        ]);
+
+        var admin = Render<AdminPage>();
+
+        var row = Assert.Single(admin.FindAll("tr.stopped"));
+        Assert.Contains("solo", row.TextContent);
+        Assert.Contains("STOPPED", row.TextContent);
+        Assert.Contains("3333", row.TextContent);
+        Assert.Contains("1 running, 1 stopped", admin.Markup);
+        Assert.Equal(2, admin.FindAll("table")[0].QuerySelectorAll("tbody tr").Length);
+    }
+
+    [Fact]
+    public void GIVEN_Admin_WHEN_StartIsClickedOnAStoppedPool_THEN_ItIsStartedAndConfirmed()
+    {
+        Provisioner.GetPools().Returns([Stopped("solo", PoolOrigin.Configuration)]);
+        Provisioner.StartAsync("solo", Arg.Any<CancellationToken>()).Returns(ProvisionResult.Success);
+        var admin = Render<AdminPage>();
+
+        admin.Find("tr.stopped button.quiet").Click();
+
+        Provisioner.Received(1).StartAsync("solo", Arg.Any<CancellationToken>());
+        Assert.Contains("running again", admin.Find(".success").TextContent);
+    }
+
+    [Fact]
+    public void GIVEN_Admin_WHEN_AStoppedPoolCannotBeStarted_THEN_ReasonIsShown()
+    {
+        Provisioner.GetPools().Returns([Stopped("solo", PoolOrigin.Configuration)]);
+        Provisioner.StartAsync("solo", Arg.Any<CancellationToken>()).Returns(ProvisionResult.Failure("Port 3333 is already used by pool 'other'."));
+        var admin = Render<AdminPage>();
+
+        admin.Find("tr.stopped button.quiet").Click();
+
+        Assert.Contains("already used", admin.Find("p.notice[role=status]").TextContent);
+    }
+
+    [Fact]
+    public void GIVEN_Admin_WHEN_AStoppedPoolComesFromTheConfiguration_THEN_ItCannotBeDeletedHere()
+    {
+        Provisioner.GetPools().Returns([Stopped("solo", PoolOrigin.Configuration)]);
+
+        var admin = Render<AdminPage>();
+
+        Assert.Empty(admin.FindAll("tr.stopped button.danger"));
+    }
+
+    [Fact]
+    public void GIVEN_Admin_WHEN_DeleteIsClickedOnAPoolCreatedHere_THEN_ItIsDeletedAndConfirmed()
+    {
+        Provisioner.GetPools().Returns([Stopped("extra", PoolOrigin.Administrator, 3337)]);
+        Provisioner.DeleteAsync("extra", Arg.Any<CancellationToken>()).Returns(ProvisionResult.Success);
+        var admin = Render<AdminPage>();
+
+        admin.Find("tr.stopped button.danger").Click();
+
+        Provisioner.Received(1).DeleteAsync("extra", Arg.Any<CancellationToken>());
+        Assert.Contains("was deleted", admin.Find(".success").TextContent);
     }
 
     [Fact]

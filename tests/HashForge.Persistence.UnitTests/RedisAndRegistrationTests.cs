@@ -81,6 +81,7 @@ public sealed class RedisAndRegistrationTests
         Assert.IsType<EfBlockRepository>(provider.GetRequiredService<IBlockRepository>());
         Assert.IsType<EfPoolHistoryRepository>(provider.GetRequiredService<IPoolHistoryRepository>());
         Assert.IsType<EfPoolDefinitionStore>(provider.GetRequiredService<IPoolDefinitionStore>());
+        Assert.IsType<EfStoppedPoolStore>(provider.GetRequiredService<IStoppedPoolStore>());
         Assert.IsType<EfDatabaseMigrator>(provider.GetRequiredService<IDatabaseMigrator>());
         Assert.IsType<DatabaseMigrationService>(Assert.Single(provider.GetServices<IHostedService>()));
         using var context = provider.GetRequiredService<IDbContextFactory<HashForgeDbContext>>().CreateDbContext();
